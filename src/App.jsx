@@ -9,8 +9,15 @@ function App() {
   const [products, setProducts] = useState(Products)
   const [cart, setCart] = useState([])
 
-  const getJSONImage = (image) => new URL(image, import.meta.url). href // import.meta resolved image path on vite
+  const images =import.meta.glob('./assets/images/*', {eager: true, query: '?url', import: 'default'})
 
+  // const getJSONImage = (image) => new URL(image, import.meta.url). href // import.meta resolved image path on vite
+  const getJSONImage = (path) => {
+    // Remove './' from JSON path to match glob keys
+    const key = path.replace(/^\.\//, './')
+    return images[key]
+  }
+  
   const updateCart = (product, delta) => {
     const existingItem = cart.find(item => item.name === product.name)
     if(existingItem){
