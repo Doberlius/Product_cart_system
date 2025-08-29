@@ -4,10 +4,12 @@ import Products from './data.json'
 import CartImage from './assets/images/icon-add-to-cart.svg'
 import RemoveItem from './assets/images/icon-remove-item.svg'
 import CarbonImage from './assets/images/icon-carbon-neutral.svg'
-
+import CakeEmpty from './assets/images/illustration-empty-cart.svg'
+import CorrectIcon from './assets/images/icon-order-confirmed.svg'
 function App() {
   const [products, setProducts] = useState(Products)
   const [cart, setCart] = useState([])
+  const [showModal, setShowModal] = useState(false)
 
   const images =import.meta.glob('./assets/images/*', {eager: true, query: '?url', import: 'default'})
 
@@ -102,18 +104,19 @@ function App() {
             <h1 className='text-2xl text-orange-500 font-bold mb-5'>Your cart ({cart.reduce((total, item)=> total+item.quantity, 0)})</h1>
             <div className='bg-white rounded-2xl p-6'>
               {cart.length === 0 ? (
-                <div className='text-center text-gray-500 py-4'>
-                  Your cart is empty
+                <div className='flex flex-col items-center text-yellow-800 py-4'>
+                  <img src={CakeEmpty} alt="CakeEmpty" className='w-40 h-40'/>
+                  Your added items will appear here.
                 </div>
               ) : (
                 <div className='flex flex-col gap-4'>
                   {cart.map((item, index) => (
-                    <div key={index} className='flex items-center justify-between'>
+                    <div key={index} className='flex items-center justify-between border-b-2 border-amber-100 pb-2'>
                         <div> 
                           <div className='font-medium'>{item.name}</div>
                           <span className='text-md' style={{color: '#87635a'}}>{item.quantity}x</span>
-                          <span className='text-md text-gray-500 mx-2'>@{item.price}.00</span>
-                          <span className='text-md text-gray-700'>${item.price * item.quantity}.00</span>
+                          <span className='text-md text-gray-500 mx-2'>@{(item.price).toFixed(2)}</span>
+                          <span className='text-md text-gray-700'>${(item.price * item.quantity).toFixed(2)}</span>
                         </div>
                         <div>
                           <button
@@ -133,7 +136,44 @@ function App() {
                       </span>
                     </div>
                     <div className='my-6 text-gray-500 flex flex-row justify-center'><img src={CarbonImage} alt="CarbonTree" className='w-5 h-5 object-contain mr-1'/>This is a <span className='text-black font-bold mx-1'>carbon neutral</span>delivery</div>
-                    <button className='w-full mt-6 bg-orange-700 text-lg text-white p-3 rounded-full hover:-translate-y-2 hover:shadow-xl/30 duration-300 ease-in'>Confirm Order</button>
+                    <button 
+                      className='w-full mt-6 bg-orange-700 text-lg text-white p-3 rounded-full hover:-translate-y-2 hover:shadow-xl/30 duration-300 ease-in'
+                      onClick={()=> setShowModal(true)}
+                    >Confirm Order</button>
+                    
+                    {showModal && (
+                      <div className='fixed inset-0 bg-black/70 bg-opacity-70 flex items-center justify-center z-10'>
+                        <div className='bg-white rounded-2xl p-8 max-w-md w-full max-h-[90vh] overflow-y-auto'>
+                          <img src={CorrectIcon} alt="correctIcon" className='w-15 h-15 object=contain'/>
+                          <h2 className='text-3xl font-bold mb-4 mt-3'>Order Confirmed</h2>
+                          <h2 className='text-lg text-yellow-800'>I hope you enjoy your food :)</h2>
+                          <div className='my-5 p-4'>
+                            {cart.map((product, index) => (
+                              <div key={index} className='flex justify-between mb-2'>
+                                <div className='flex gap-3 w-full'>
+                                  <img src={getJSONImage(product.image.thumbnail)} alt="ShowdownImage" className='w-15 h-15 object-contain rounded-lg'/>
+                                  <div className='flex flex-col flex-1'>
+                                    <span>{product.name}</span>
+                                    <div className='flex flex-row items-center justify-between w-full'>
+                                      <div className='flex gap-x-4'>
+                                        <span className='text-yellow-800 text-md'>x{product.quantity}</span>
+                                        <span className='text-gray-500'>@{(product.price).toFixed(2)}</span>
+                                      </div>
+                                      <span className='text-lg font-bold'>${(product.price * product.quantity).toFixed(2)}</span>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                          <div className='mt-6 flex justify-between'>
+                            <span className='text-lg'>Order Total</span>
+                            <span className='text-2xl font-bold'>${(cart.reduce((total, product) => total + (product.price * product.quantity), 0).toFixed(2))}</span>
+                          </div>
+                          <button className='my-5 w-full p-3 bg-orange-600 rounded-full text-white  hover:-translate-y-2 hover:shadow-xl/30 duration-300 ease-in'>Start new order</button>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               )}
